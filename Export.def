@@ -1,0 +1,7 @@
+LIBRARY  "KTExcel.dll"
+
+EXPORTS
+  KTLoadTemplateExcelFile          @1
+  KTCloseTemplateExcelFile         @2
+  KTSetCellValue                   @3
+  KTSaveExcelFile                  @4

@@ -1,0 +1,25 @@
+#
+# Copyright (C) 2000-2013
+# nizvoo (AT) gmail.com
+#
+CC = cl
+CXX = cl
+RM = del
+CP = copy
+LD = link
+BIN = KTExcelTest.exe
+SRC = KTExcelTest.cpp KTExcel.cpp
+OBJ = KTExcelTest.obj KTExcel.obj
+CFLAGS = -I../../ -D_UNICODE -DUNICODE /Zc:wchar_t- /O2
+WSLIB = ws2_32.lib gdi32.lib user32.lib
+
+$(BIN): $(OBJ)
+	$(LD) $(WSLIB) $(OBJ) /OUT:$(BIN)
+
+$(OBJ): $(SRC)
+	$(CC) -c $(CFLAGS) $(SRC)
+
+PHONY: clean
+clean:
+	-$(RM) $(OBJ)
+	-$(RM) $(BIN)
