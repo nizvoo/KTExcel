@@ -11,7 +11,7 @@
 
 #include <atlwin.h>
 
-#include <atlcoll.h>		// ATL collections
+#include <atlcoll.h>  // ATL collections
 
 
 #include "KTExcel.h"
@@ -99,9 +99,17 @@ extern "C" BOOL KTLoadTemplateExcelFile(const TCHAR* filename)
   return TRUE;
 }
 
-extern "C" void KTSetCellValue(int row, int col, float v)
+extern "C" void KTSetCellValue(int row, int col, const char* type, const TCHAR* data)
 {
-  user_excel->pRange->Item[row][col] = v;
+  if (stricmp(type, "float") == 0) {
+    float v = _ttof(data);
+    user_excel->pRange->Item[row][col] = v;
+  } else if (stricmp(type, "int") == 0) {
+    int v = _ttof(data);
+    user_excel->pRange->Item[row][col] = v;
+  } else if (stricmp(type, "string") == 0) {
+    user_excel->pRange->Item[row][col] = data;
+  }
 }
 
 extern "C" BOOL KTSaveExcelFile(const TCHAR* filename)

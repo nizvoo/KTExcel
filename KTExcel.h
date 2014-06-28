@@ -7,7 +7,7 @@ extern "C" {
 
 
 BOOL KTLoadTemplateExcelFile(const TCHAR* filename);
-void KTSetCellValue(int row, int col, float);
+void KTSetCellValue(int row, int col, const char* type, const TCHAR* data);
 BOOL KTSaveExcelFile(const TCHAR* filename);
 void KTCloseTemplateExcelFile();
 
