@@ -283,3 +283,15 @@ extern "C" BOOL KTAPI KTInitExcel(const TCHAR* text)
 extern "C"  void KTAPI KTUnInitExcel()
 {
 }
+
+extern "C" BOOL KTAPI KTExcelStatus()
+{
+	Excel::_ApplicationPtr app;
+
+	if ( FAILED(app.CreateInstance( _T("Excel.Application")))) {
+    return FALSE;
+  }
+
+	app->Quit( );
+  return TRUE;
+}

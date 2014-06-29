@@ -46,31 +46,36 @@ int main(int argc, char* argv[])
 
   _ftprintf(stdout, _T("%s\n%s\n"), template_filename, filename);
 
-  KTLoadTemplateExcelFile(template_filename);
+  if (KTExcelStatus()) {
 
-  TCHAR text[MAX_PATH + 1] = {0};
-  for (int i = 1; i < 4; ++i) {
-    for (int j = 1; j < 4; ++j) {
-      KTGetCellValue(i, j, "string", text, MAX_PATH);
-      _ftprintf(stdout, _T("%s\t"), text);
+    KTLoadTemplateExcelFile(template_filename);
+
+    TCHAR text[MAX_PATH + 1] = {0};
+    for (int i = 1; i < 4; ++i) {
+      for (int j = 1; j < 4; ++j) {
+        KTGetCellValue(i, j, "string", text, MAX_PATH);
+        _ftprintf(stdout, _T("%s\t"), text);
+      }
+      _ftprintf(stdout, _T("\n"));
     }
     _ftprintf(stdout, _T("\n"));
+
+    KTSetCellValue(5, 1, "int", _T("1"));
+    KTSetCellValue(5, 2, "int", _T("2"));
+    KTSetCellValue(5, 3, "int", _T("3"));
+
+    KTSetCellValue(6, 1, "int", _T("0.1"));
+    KTSetCellValue(6, 2, "int", _T("0.2"));
+    KTSetCellValue(6, 3, "int", _T("0.3"));
+
+
+    KTSaveExcelFile(filename);
+
+    KTCloseTemplateExcelFile();
+  } else {
+    fprintf(stdout, "Invoking the EXCEL COM object fail.\n");
   }
-  _ftprintf(stdout, _T("\n"));
 
-  KTSetCellValue(5, 1, "int", _T("1"));
-  KTSetCellValue(5, 2, "int", _T("2"));
-  KTSetCellValue(5, 3, "int", _T("3"));
-
-  KTSetCellValue(6, 1, "int", _T("0.1"));
-  KTSetCellValue(6, 2, "int", _T("0.2"));
-  KTSetCellValue(6, 3, "int", _T("0.3"));
-
-
-  KTSaveExcelFile(filename);
-  
-  KTCloseTemplateExcelFile();
-  
   KTUnInitExcel();
   
   ::CoUninitialize();

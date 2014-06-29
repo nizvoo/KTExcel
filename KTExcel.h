@@ -17,7 +17,7 @@ void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data)
 BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int dlc);
 BOOL KTAPI KTSaveExcelFile(const TCHAR* filename);
 void KTAPI KTCloseTemplateExcelFile();
-
+BOOL KTAPI KTExcelStatus();
 
 
 #ifdef __cplusplus

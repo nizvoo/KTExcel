@@ -6,3 +6,4 @@ EXPORTS
   KTSetCellValue                   @3
   KTSaveExcelFile                  @4
   KTGetCellValue                   @5
+  KTExcelStatus                    @6
