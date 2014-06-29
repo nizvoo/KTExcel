@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
     KTSetCellValue(5, 2, "int", _T("2"));
     KTSetCellValue(5, 3, "int", _T("3"));
 
-    KTSetCellValue(6, 1, "int", _T("0.1"));
-    KTSetCellValue(6, 2, "int", _T("0.2"));
-    KTSetCellValue(6, 3, "int", _T("0.3"));
+    KTSetCellValue(6, 1, "float", _T("0.1"));
+    KTSetCellValue(6, 2, "float", _T("0.2"));
+    KTSetCellValue(6, 3, "float", _T("0.3"));
 
 
     KTSaveExcelFile(filename);
