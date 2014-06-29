@@ -16,7 +16,6 @@
 
 #include "KTExcel.h"
 
-
 #import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE14\\MSO.DLL" \
 	rename( "RGB", "MSORGB" )
 
@@ -54,10 +53,10 @@ static void Errorf( LPCTSTR pszFormat, ... )
 
 struct user_excel_st
 {
-  Excel::_ApplicationPtr pApplication;
-  Excel::_WorkbookPtr pBook;
-  Excel::_WorksheetPtr pSheet;
-  Excel::RangePtr pRange;
+  Excel::_ApplicationPtr app;
+  Excel::_WorkbookPtr book;
+  Excel::_WorksheetPtr sheet;
+  Excel::RangePtr range;
   
   user_excel_st()
   {
@@ -66,74 +65,93 @@ struct user_excel_st
 
 struct user_excel_st* user_excel = NULL;
 
-extern "C" BOOL KTLoadTemplateExcelFile(const TCHAR* filename)
+extern "C" BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
 {
-	// Load the Excel application in the background.
-	user_excel = new user_excel_st;
+  // Load the Excel application in the background.
+  user_excel = new user_excel_st;
 
-	if ( FAILED(user_excel->pApplication.CreateInstance( _T("Excel.Application") ) ) )
-	{
-		Errorf( _T("Failed to initialize Excel::_Application!") );
-		return FALSE;
-	}
+  if ( FAILED(user_excel->app.CreateInstance( _T("Excel.Application")))) {
+    Errorf( _T("Failed to initialize Excel::_Application!") );
+    return FALSE;
+  }
 
-	_variant_t	varOption( (long) DISP_E_PARAMNOTFOUND, VT_ERROR );
-  _ftprintf(stdout, _T("%s\n"), filename);
-  if (!user_excel->pApplication || !user_excel->pApplication->Workbooks) {
+  _variant_t	varOption( (long)DISP_E_PARAMNOTFOUND, VT_ERROR );
+
+  if (!user_excel->app || !user_excel->app->Workbooks) {
     Errorf(_T("Workbooks is empty\n")); 
     return FALSE;
   }
-  
-	user_excel->pBook = user_excel->pApplication->Workbooks->Open(filename);//, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption );
-	if (user_excel->pBook == NULL )
-	{
-		Errorf( _T("Failed to open Excel file!") );
-		return FALSE;
-	}
-  user_excel->pApplication->PutVisible(0, FALSE); 
 
-	user_excel->pSheet = user_excel->pBook->Sheets->Item[1];
-  
-  user_excel->pRange = user_excel->pSheet->Cells;     
-  
+  user_excel->book = user_excel->app->Workbooks->Open(filename);//, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption, varOption );
+  if (user_excel->book == NULL) {
+    Errorf( _T("Failed to open Excel file!") );
+    return FALSE;
+  }
+  user_excel->app->PutVisible(0, FALSE); 
+
+  user_excel->sheet = user_excel->book->Sheets->Item[1];
+
+  user_excel->range = user_excel->sheet->Cells;     
+
   return TRUE;
 }
 
-extern "C" void KTSetCellValue(int row, int col, const char* type, const TCHAR* data)
+extern "C" void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data)
 {
   if (stricmp(type, "float") == 0) {
     float v = _ttof(data);
-    user_excel->pRange->Item[row][col] = v;
+    user_excel->range->Item[row][col] = v;
   } else if (stricmp(type, "int") == 0) {
     int v = _ttof(data);
-    user_excel->pRange->Item[row][col] = v;
+    user_excel->range->Item[row][col] = v;
   } else if (stricmp(type, "string") == 0) {
-    user_excel->pRange->Item[row][col] = data;
+    user_excel->range->Item[row][col] = data;
   }
 }
 
-extern "C" BOOL KTSaveExcelFile(const TCHAR* filename)
+/* http://msdn.microsoft.com/en-us/library/x295h94e.aspx */
+extern "C" BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int dlc)
 {
-    // Switch off alert prompting to save as   
-    user_excel->pApplication->PutDisplayAlerts( LOCALE_USER_DEFAULT, VARIANT_FALSE );  
-  
-    // Save the values in book.xml  
-    user_excel->pSheet->SaveAs(filename);  
-    user_excel->pApplication->PutDisplayAlerts( LOCALE_USER_DEFAULT, VARIANT_TRUE );
-  	// Don't save any inadvertant changes to the .xls file.
+  BOOL res = FALSE;
+  if (stricmp(type, "float") == 0) {
+    float v = user_excel->range->Item[row][col];
+    _sntprintf(data, dlc, _T("%0.3f"), v);    
+    res = TRUE;
+  } else if (stricmp(type, "int") == 0) {
+    float v = user_excel->range->Item[row][col];
+    _sntprintf(data, dlc, _T("%d"), v); 
+    res = TRUE;
+  } else if (stricmp(type, "string") == 0) {
+		_variant_t item = user_excel->range->Item[row][col];
+		_bstr_t bstrText(item);
+
+    _sntprintf(data, dlc, _T("%s"), bstrText.GetBSTR()) ; 
+    res = TRUE;
+  }
+  return res;
+}
+
+extern "C" BOOL KTAPI KTSaveExcelFile(const TCHAR* filename)
+{
+  // Switch off alert prompting to save as   
+  user_excel->app->PutDisplayAlerts( LOCALE_USER_DEFAULT, VARIANT_FALSE );  
+
+  // Save the values in book.xml  
+  user_excel->sheet->SaveAs(filename);  
+  user_excel->app->PutDisplayAlerts(LOCALE_USER_DEFAULT, VARIANT_TRUE );
+  // Don't save any inadvertant changes to the .xls file.
 	return TRUE;
 }
 
-extern "C" void KTCloseTemplateExcelFile()
+extern "C" void KTAPI KTCloseTemplateExcelFile()
 {
   if (user_excel) {
-    user_excel->pBook->Close( VARIANT_FALSE );
+    user_excel->book->Close( VARIANT_FALSE );
     // And switch back on again...  
-   
 
     // Need to quit, otherwise Excel remains active and locks the .xls file.
-    user_excel->pApplication->Quit( );
-  
+    user_excel->app->Quit( );
+
     delete user_excel;
     user_excel = NULL;
   }
@@ -255,4 +273,13 @@ extern "C" BOOL LoadExcelFile(const TCHAR* filename)
 	pApplication->Quit( );
 
   return TRUE;
+}
+
+extern "C" BOOL KTAPI KTInitExcel(const TCHAR* text)
+{
+  return FALSE;
+}
+
+extern "C"  void KTAPI KTUnInitExcel()
+{
 }
