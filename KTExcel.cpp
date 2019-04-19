@@ -16,7 +16,7 @@
 
 #include "KTExcel.h"
 
-#import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE14\\MSO.DLL" \
+#import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE12\\MSO.DLL" \
 	rename( "RGB", "MSORGB" )
 
 using namespace Office;
@@ -25,11 +25,14 @@ using namespace Office;
 
 using namespace VBIDE;
 
-#import "C:\\Program Files (x86)\\Microsoft Office\\OFFICE14\\EXCEL.EXE" \
+#import "C:\\Program Files (x86)\\Microsoft Office\\OFFICE12\\EXCEL.EXE" \
 	rename( "DialogBox", "ExcelDialogBox" ) \
 	rename( "RGB", "ExcelRGB" ) \
 	rename( "CopyFile", "ExcelCopyFile" ) \
 	rename( "ReplaceText", "ExcelReplaceText" )
+
+
+static int sheet_index = 1;
 
 static void ErrorfV1(const TCHAR* text)
 {
@@ -91,9 +94,21 @@ extern "C" BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
 
   user_excel->sheet = user_excel->book->Sheets->Item[1];
 
-  user_excel->range = user_excel->sheet->Cells;     
+  user_excel->range = user_excel->sheet->Cells;
 
   return TRUE;
+}
+
+void KTAPI KTSetSheetIndex(int sheet)
+{
+  sheet_index = sheet + 1;
+  user_excel->sheet = user_excel->book->Sheets->Item[sheet + 1];
+  user_excel->range = user_excel->sheet->Cells;
+}
+
+int KTGetSheetIndex()
+{
+  return sheet_index - 1;
 }
 
 extern "C" void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data)

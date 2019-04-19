@@ -7,3 +7,5 @@ EXPORTS
   KTSaveExcelFile                  @4
   KTGetCellValue                   @5
   KTExcelStatus                    @6
+  KTSetSheetIndex                  @7
+  KTGetSheetIndex                  @8

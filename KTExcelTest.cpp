@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
     }
     _ftprintf(stdout, _T("\n"));
 
+    KTSetSheetIndex(0);
     KTSetCellValue(5, 1, "int", _T("1"));
     KTSetCellValue(5, 2, "int", _T("2"));
     KTSetCellValue(5, 3, "int", _T("3"));
@@ -67,6 +68,16 @@ int main(int argc, char* argv[])
     KTSetCellValue(6, 1, "float", _T("0.1"));
     KTSetCellValue(6, 2, "float", _T("0.2"));
     KTSetCellValue(6, 3, "float", _T("0.3"));
+
+    KTSetSheetIndex(1);
+
+    KTSetCellValue(5, 1, "int", _T("11"));
+    KTSetCellValue(5, 2, "int", _T("12"));
+    KTSetCellValue(5, 3, "int", _T("13"));
+
+    KTSetCellValue(6, 1, "float", _T("1.1"));
+    KTSetCellValue(6, 2, "float", _T("1.2"));
+    KTSetCellValue(6, 3, "float", _T("1.3"));
 
 
     KTSaveExcelFile(filename);

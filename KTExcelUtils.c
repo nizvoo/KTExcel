@@ -12,6 +12,8 @@ typedef BOOL (KTAPI* TKTGetCellValue)(int row, int col, const char* type, const 
 typedef BOOL (KTAPI* TKTSaveExcelFile)(const TCHAR* filename);
 typedef void (KTAPI* TKTCloseTemplateExcelFile)();
 typedef BOOL (KTAPI* TKTExcelStatus)();
+typedef void (KTAPI* TKTSetSheetIndex)(int sheet);
+typedef int (KTAPI*  TKTGetSheetIndex)();
 
 static TKTLoadTemplateExcelFile KTLoadTemplateExcelFileProc = NULL;
 static TKTSetCellValue KTSetCellValueProc = NULL;
@@ -19,6 +21,8 @@ static TKTGetCellValue KTGetCellValueProc = NULL;
 static TKTSaveExcelFile KTSaveExcelFileProc = NULL;
 static TKTCloseTemplateExcelFile KTCloseTemplateExcelFileProc = NULL;
 static TKTExcelStatus KTExcelStatusProc = NULL;
+static TKTSetSheetIndex KTSetSheetIndexProc = NULL;
+static TKTGetSheetIndex KTGetSheetIndexProc = NULL;
 
 BOOL KTAPI KTInitExcel(const TCHAR* path)
 {
@@ -37,6 +41,8 @@ BOOL KTAPI KTInitExcel(const TCHAR* path)
   KTSaveExcelFileProc = (TKTSaveExcelFile)GetProcAddress(inst, "KTSaveExcelFile");
   KTCloseTemplateExcelFileProc = (TKTCloseTemplateExcelFile)GetProcAddress(inst, "KTCloseTemplateExcelFile");
   KTExcelStatusProc = (TKTExcelStatus)GetProcAddress(inst, "KTExcelStatus");
+  KTGetSheetIndexProc = (TKTGetSheetIndex)GetProcAddress(inst, "KTGetSheetIndex");
+  KTSetSheetIndexProc = (TKTSetSheetIndex)GetProcAddress(inst, "KTSetSheetIndex");
   return TRUE;
 }
 
@@ -93,4 +99,17 @@ BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int d
   if (!KTGetCellValueProc) return FALSE;
   
   return KTGetCellValueProc(row, col, type, data, dlc);
+}
+
+int KTAPI KTGetSheetIndex()
+{
+  if (!KTGetSheetIndexProc) return 0;
+
+  return KTGetSheetIndexProc();
+}
+
+void KTAPI KTSetSheetIndex(int sheet)
+{
+  if (KTSetSheetIndexProc)
+    KTSetSheetIndexProc(sheet);
 }

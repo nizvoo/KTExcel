@@ -13,6 +13,8 @@ BOOL KTAPI KTInitExcel(const TCHAR*);
 void KTAPI KTUnInitExcel();
 
 BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename);
+int  KTAPI KTGetSheetIndex();
+void KTAPI KTSetSheetIndex(int sheet);
 void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data);
 BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int dlc);
 BOOL KTAPI KTSaveExcelFile(const TCHAR* filename);
