@@ -16,23 +16,32 @@
 
 #include "KTExcel.h"
 
-#import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE12\\MSO.DLL" \
-	rename( "RGB", "MSORGB" )
+//#import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE12\\MSO.DLL" \
+	//rename( "RGB", "MSORGB" )
+
+#import "MSO.DLL" rename( "RGB", "MSORGB" )
+
 
 using namespace Office;
 
-#import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\VBA\\VBA6\\VBE6EXT.OLB"
+//#import "C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\VBA\\VBA6\\VBE6EXT.OLB"
+#import "VBE6EXT.OLB"
 
-using namespace VBIDE;
-
+//using namespace VBIDE;
+#if 0
 #import "C:\\Program Files (x86)\\Microsoft Office\\OFFICE12\\EXCEL.EXE" \
 	rename( "DialogBox", "ExcelDialogBox" ) \
 	rename( "RGB", "ExcelRGB" ) \
 	rename( "CopyFile", "ExcelCopyFile" ) \
 	rename( "ReplaceText", "ExcelReplaceText" )
+#endif
 
+#import "EXCEL.EXE" \
+	rename( "DialogBox", "ExcelDialogBox" ) \
+	rename( "RGB", "ExcelRGB" ) \
+	rename( "CopyFile", "ExcelCopyFile" ) \
+	rename( "ReplaceText", "ExcelReplaceText" )
 
-static int sheet_index = 1;
 
 static void ErrorfV1(const TCHAR* text)
 {
@@ -60,18 +69,20 @@ struct user_excel_st
   Excel::_WorkbookPtr book;
   Excel::_WorksheetPtr sheet;
   Excel::RangePtr range;
-  
+  int sheet_index;
   user_excel_st()
   {
+	  sheet_index = 1;
   }
 };
 
-struct user_excel_st* user_excel = NULL;
+struct user_excel_st* user_excel_list[MAX_PATH] = {0};
+int                   user_excel_count     = 0;
 
-extern "C" BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
+extern "C" int KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
 {
   // Load the Excel application in the background.
-  user_excel = new user_excel_st;
+  user_excel_st* user_excel = new user_excel_st;
 
   if ( FAILED(user_excel->app.CreateInstance( _T("Excel.Application")))) {
     Errorf( _T("Failed to initialize Excel::_Application!") );
@@ -95,24 +106,36 @@ extern "C" BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
   user_excel->sheet = user_excel->book->Sheets->Item[1];
 
   user_excel->range = user_excel->sheet->Cells;
+  
+  int curr_pos = user_excel_count++;
+  
+  if (curr_pos > MAX_PATH - 1) {
+    curr_pos = 0;
+  }
+  
+  user_excel_list[curr_pos] = user_excel;
 
-  return TRUE;
+  return curr_pos;
 }
 
-void KTAPI KTSetSheetIndex(int sheet)
+void KTAPI KTSetSheetIndex(int handle, int sheet)
 {
-  sheet_index = sheet + 1;
+  user_excel_st* user_excel = user_excel_list[handle];
+  user_excel->sheet_index = sheet + 1;
   user_excel->sheet = user_excel->book->Sheets->Item[sheet + 1];
   user_excel->range = user_excel->sheet->Cells;
 }
 
-int KTGetSheetIndex()
+int KTGetSheetIndex(int handle)
 {
-  return sheet_index - 1;
+  user_excel_st* user_excel = user_excel_list[handle];	
+  return user_excel->sheet_index - 1;
 }
 
-extern "C" void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data)
+extern "C" void KTAPI KTSetCellValue(int handle, int row, int col, const char* type, const TCHAR* data)
 {
+  user_excel_st* user_excel = user_excel_list[handle];	
+  
   if (stricmp(type, "float") == 0) {
     float v = _ttof(data);
     user_excel->range->Item[row][col] = v;
@@ -125,8 +148,10 @@ extern "C" void KTAPI KTSetCellValue(int row, int col, const char* type, const T
 }
 
 /* http://msdn.microsoft.com/en-us/library/x295h94e.aspx */
-extern "C" BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int dlc)
+extern "C" BOOL KTAPI KTGetCellValue(int handle, int row, int col, const char* type, TCHAR* data, int dlc)
 {
+  user_excel_st* user_excel = user_excel_list[handle];	
+  
   BOOL res = FALSE;
   if (stricmp(type, "float") == 0) {
     float v = user_excel->range->Item[row][col];
@@ -134,7 +159,7 @@ extern "C" BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* 
     res = TRUE;
   } else if (stricmp(type, "int") == 0) {
     float v = user_excel->range->Item[row][col];
-    _sntprintf(data, dlc, _T("%d"), v); 
+    _sntprintf(data, dlc, _T("%d"), (int)v); 
     res = TRUE;
   } else if (stricmp(type, "string") == 0) {
 		_variant_t item = user_excel->range->Item[row][col];
@@ -146,8 +171,10 @@ extern "C" BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* 
   return res;
 }
 
-extern "C" BOOL KTAPI KTSaveExcelFile(const TCHAR* filename)
+extern "C" BOOL KTAPI KTSaveExcelFile(int handle, const TCHAR* filename)
 {
+  user_excel_st* user_excel = user_excel_list[handle];
+	
   // Switch off alert prompting to save as   
   user_excel->app->PutDisplayAlerts( LOCALE_USER_DEFAULT, VARIANT_FALSE );  
 
@@ -158,8 +185,10 @@ extern "C" BOOL KTAPI KTSaveExcelFile(const TCHAR* filename)
 	return TRUE;
 }
 
-extern "C" void KTAPI KTCloseTemplateExcelFile()
+extern "C" void KTAPI KTCloseTemplateExcelFile(int handle)
 {
+  user_excel_st* user_excel = user_excel_list[handle];	
+  
   if (user_excel) {
     user_excel->book->Close( VARIANT_FALSE );
     // And switch back on again...  
@@ -288,7 +317,7 @@ extern "C" BOOL LoadExcelFile(const TCHAR* filename)
 	pApplication->Quit( );
 
   return TRUE;
-}
+  }
 
 extern "C" BOOL KTAPI KTInitExcel(const TCHAR* text)
 {

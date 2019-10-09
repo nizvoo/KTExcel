@@ -12,13 +12,13 @@ extern "C" {
 BOOL KTAPI KTInitExcel(const TCHAR*);
 void KTAPI KTUnInitExcel();
 
-BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename);
-int  KTAPI KTGetSheetIndex();
-void KTAPI KTSetSheetIndex(int sheet);
-void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data);
-BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int dlc);
-BOOL KTAPI KTSaveExcelFile(const TCHAR* filename);
-void KTAPI KTCloseTemplateExcelFile();
+int KTAPI KTLoadTemplateExcelFile(const TCHAR* filename);
+int  KTAPI KTGetSheetIndex(int handle);
+void KTAPI KTSetSheetIndex(int handle, int sheet);
+void KTAPI KTSetCellValue(int handle, int row, int col, const char* type, const TCHAR* data);
+BOOL KTAPI KTGetCellValue(int handle, int row, int col, const char* type, TCHAR* data, int dlc);
+BOOL KTAPI KTSaveExcelFile(int handle, const TCHAR* filename);
+void KTAPI KTCloseTemplateExcelFile(int handle);
 BOOL KTAPI KTExcelStatus();
 
 

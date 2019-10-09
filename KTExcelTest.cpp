@@ -79,6 +79,32 @@ int main(int argc, char* argv[])
     KTSetCellValue(6, 2, "float", _T("1.2"));
     KTSetCellValue(6, 3, "float", _T("1.3"));
 
+    KTSetSheetIndex(0);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(OverSizeX)"));
+    KTSetCellValue(5, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(LowSizeX)"));
+    KTSetCellValue(6, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(OverSizeY)"));
+    KTSetCellValue(7, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(LowSizeY)"));
+    KTSetCellValue(8, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(OverArea)"));
+    KTSetCellValue(9, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(LowArea)"));
+    KTSetCellValue(10, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(ShiftX)"));
+    KTSetCellValue(11, 6, "string", text);
+
+    _sntprintf(text, MAX_PATH, _T("%s"), _T("m_real_time_dlg->GetUserNGCount(ShiftY)"));
+    KTSetCellValue(12, 6, "string", text);
+
 
     KTSaveExcelFile(filename);
 
