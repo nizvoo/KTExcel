@@ -1,3 +1,14 @@
+/*
+ * (C) Copyright AOE Studio 2010 - All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information
+ * of AOE Studio  ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with AOE Studio
+ *
+ */
+
 #include <windows.h>
 #include <tchar.h>
 

@@ -1,3 +1,14 @@
+/*
+ * (C) Copyright AOE Studio 2010 - All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information
+ * of AOE Studio  ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with AOE Studio
+ *
+ */
+
 #include <windows.h>
 #include <tchar.h>
 
@@ -6,14 +17,14 @@
 
 static HINSTANCE inst;
 
-typedef BOOL (KTAPI* TKTLoadTemplateExcelFile)(const TCHAR* filename);
-typedef void (KTAPI* TKTSetCellValue)(int row, int col, const char* type, const TCHAR* data);
-typedef BOOL (KTAPI* TKTGetCellValue)(int row, int col, const char* type, const TCHAR* data, int dlc);
-typedef BOOL (KTAPI* TKTSaveExcelFile)(const TCHAR* filename);
-typedef void (KTAPI* TKTCloseTemplateExcelFile)();
-typedef BOOL (KTAPI* TKTExcelStatus)();
-typedef void (KTAPI* TKTSetSheetIndex)(int sheet);
-typedef int (KTAPI*  TKTGetSheetIndex)();
+typedef int (KTAPI* TKTLoadTemplateExcelFile)(const TCHAR* filename);
+typedef void (KTAPI* TKTSetCellValue)(int handle, int row, int col, const char* type, const TCHAR* data);
+typedef BOOL(KTAPI* TKTGetCellValue)(int handle, int row, int col, const char* type, const TCHAR* data, int dlc);
+typedef BOOL(KTAPI* TKTSaveExcelFile)(int handle, const TCHAR* filename);
+typedef void (KTAPI* TKTCloseTemplateExcelFile)(int handle);
+typedef BOOL(KTAPI* TKTExcelStatus)();
+typedef void (KTAPI* TKTSetSheetIndex)(int handle, int sheet);
+typedef int (KTAPI*  TKTGetSheetIndex)(int handle);
 
 static TKTLoadTemplateExcelFile KTLoadTemplateExcelFileProc = NULL;
 static TKTSetCellValue KTSetCellValueProc = NULL;
@@ -26,11 +37,11 @@ static TKTGetSheetIndex KTGetSheetIndexProc = NULL;
 
 BOOL KTAPI KTInitExcel(const TCHAR* path)
 {
-  TCHAR filename[MAX_PATH + 1] = {0};
+  TCHAR filename[MAX_PATH + 1] = { 0 };
   DWORD error_id;
-  _sntprintf(filename, MAX_PATH, _T("%s/KTExcel.dll"), path);
-  
-  inst  = LoadLibrary(filename);
+  _sntprintf(filename, MAX_PATH, _T("%s/ESExcel.dll"), path);
+
+  inst = LoadLibrary(filename);
 
   error_id = GetLastError();
   if (!inst) return FALSE;
@@ -43,6 +54,8 @@ BOOL KTAPI KTInitExcel(const TCHAR* path)
   KTExcelStatusProc = (TKTExcelStatus)GetProcAddress(inst, "KTExcelStatus");
   KTGetSheetIndexProc = (TKTGetSheetIndex)GetProcAddress(inst, "KTGetSheetIndex");
   KTSetSheetIndexProc = (TKTSetSheetIndex)GetProcAddress(inst, "KTSetSheetIndex");
+
+  if (!KTExcelStatusProc) printf("Load Excel Status Entry Point fail.\n");
   return TRUE;
 }
 
@@ -65,51 +78,51 @@ BOOL KTAPI KTExcelStatus()
   return res;
 }
 
-BOOL KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
+int KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
 {
   if (!KTLoadTemplateExcelFileProc) return FALSE;
-  
+
   return KTLoadTemplateExcelFileProc(filename);
 }
 
-void KTAPI KTSetCellValue(int row, int col, const char* type, const TCHAR* data)
+void KTAPI KTSetCellValue(int handle, int row, int col, const char* type, const TCHAR* data)
 {
   if (!KTSetCellValueProc) return;
-  
-  KTSetCellValueProc(row, col, type, data);
+
+  KTSetCellValueProc(handle, row, col, type, data);
 }
 
-BOOL KTAPI KTSaveExcelFile(const TCHAR* filename)
+BOOL KTAPI KTSaveExcelFile(int handle, const TCHAR* filename)
 {
   if (!KTSaveExcelFileProc) return FALSE;
-  
-  return KTSaveExcelFileProc(filename);
+
+  return KTSaveExcelFileProc(handle, filename);
 }
 
-void KTAPI KTCloseTemplateExcelFile()
+void KTAPI KTCloseTemplateExcelFile(int handle)
 {
   if (!KTCloseTemplateExcelFileProc) return;
-  
-  KTCloseTemplateExcelFileProc();
+
+  KTCloseTemplateExcelFileProc(handle);
 }
 
 
-BOOL KTAPI KTGetCellValue(int row, int col, const char* type, TCHAR* data, int dlc)
+BOOL KTAPI KTGetCellValue(int handle, int row, int col, const char* type, TCHAR* data, int dlc)
 {
   if (!KTGetCellValueProc) return FALSE;
-  
-  return KTGetCellValueProc(row, col, type, data, dlc);
+
+  return KTGetCellValueProc(handle, row, col, type, data, dlc);
 }
 
-int KTAPI KTGetSheetIndex()
+int KTAPI KTGetSheetIndex(int handle)
 {
   if (!KTGetSheetIndexProc) return 0;
 
-  return KTGetSheetIndexProc();
+  return KTGetSheetIndexProc(handle);
 }
 
-void KTAPI KTSetSheetIndex(int sheet)
+void KTAPI KTSetSheetIndex(int handle, int sheet)
 {
   if (KTSetSheetIndexProc)
-    KTSetSheetIndexProc(sheet);
+    KTSetSheetIndexProc(handle, sheet);
 }
