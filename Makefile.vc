@@ -10,7 +10,7 @@ LD = link
 BIN = KTExcelTest.exe
 SRC = KTExcelTest.cpp KTExcelUtils.c
 OBJ = KTExcelTest.obj KTExcelUtils.obj
-CFLAGS = -I../../ -D_UNICODE -DUNICODE /Zc:wchar_t- /O2
+CFLAGS = -I../../ -D_UNICODE -DUNICODE /O2
 WSLIB = ws2_32.lib gdi32.lib user32.lib ole32.lib
 
 $(BIN): $(OBJ)

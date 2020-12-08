@@ -39,6 +39,9 @@ int main(int argc, char* argv[])
   TCHAR template_filename[MAX_PATH + 1] = {0};
   TCHAR filename[MAX_PATH + 1] = {0};
   TCHAR path[MAX_PATH + 1] = {0};
+  DWORD start_tm;
+  
+  start_tm = GetTickCount();
 
   if (!KTGetUserAppPath(path, MAX_PATH)) {
     return -1;
@@ -51,8 +54,8 @@ int main(int argc, char* argv[])
 
   assert(SUCCEEDED(hRes));
 
-  _sntprintf(template_filename, MAX_PATH, _T("%s/ESUserExportDataTemplate.xltx"), path);
-  _sntprintf(filename, MAX_PATH, _T("%s/MyUserTemplate.xlsx"), path);
+  _sntprintf(template_filename, MAX_PATH, _T("%s/UserTemplate.xls"), path);
+  _sntprintf(filename, MAX_PATH, _T("%s/MyUserTemplate.xls"), path);
 
   _ftprintf(stdout, _T("%s\n%s\n"), template_filename, filename);
 
@@ -124,6 +127,7 @@ int main(int argc, char* argv[])
 
   KTUnInitExcel();
 
+  printf("Use time:%0.3f S\n", (GetTickCount() - start_tm) / 1000.0);
   ::CoUninitialize();
   return 0;
 }

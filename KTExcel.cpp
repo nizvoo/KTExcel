@@ -98,6 +98,8 @@ extern "C" int KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
     return FALSE;
   }
   user_excel->app->PutVisible(0, FALSE);
+  
+  user_excel->app->PutScreenUpdating(0, FALSE); 
 
   user_excel->sheet = user_excel->book->Sheets->Item[1];
 
@@ -217,6 +219,7 @@ extern "C" BOOL LoadExcelFile(const TCHAR* filename)
     return FALSE;
   }
   pApplication->PutVisible(0, FALSE);
+  pApplication->PutScreenUpdating(0, FALSE); 
 
   Excel::_WorksheetPtr pSheet = pBook->Sheets->Item[1];
 

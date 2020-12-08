@@ -9,7 +9,7 @@ CP = copy
 BIN = KTExcel.dll
 SRC = KTExcel.cpp Export.c Export.def
 OBJ = KTExcel.obj Export.obj
-CFLAGS = -D_UNICODE -DUNICODE /MD /LD /Zc:wchar_t- /O2 
+CFLAGS = -D_UNICODE -DUNICODE /MD /LD /O2 
 WSLIB = 
 
 $(BIN): $(SRC)
