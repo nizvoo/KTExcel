@@ -145,6 +145,13 @@ extern "C" void KTAPI KTSetCellValue(int handle, int row, int col, const char* t
   }
 }
 
+extern "C" void KTAPI KTSetCellFloatValue(int handle, int row, int col, float data)
+{
+  user_excel_st* user_excel = user_excel_list[handle];
+
+  user_excel->range->Item[row][col] = data;
+}
+
 /* http://msdn.microsoft.com/en-us/library/x295h94e.aspx */
 extern "C" BOOL KTAPI KTGetCellValue(int handle, int row, int col, const char* type, TCHAR* data, int dlc)
 {
