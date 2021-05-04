@@ -10,7 +10,7 @@
 ;; */
 
 
-LIBRARY  "KTExcel.dll"
+LIBRARY  "ESExcel.dll"
 
 EXPORTS
   KTLoadTemplateExcelFile          @1
@@ -21,3 +21,4 @@ EXPORTS
   KTExcelStatus                    @6
   KTSetSheetIndex                  @7
   KTGetSheetIndex                  @8
+  KTSetCellFloatValue              @9
