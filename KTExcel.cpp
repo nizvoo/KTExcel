@@ -183,6 +183,7 @@ extern "C" BOOL KTAPI KTSaveExcelFile(int handle, const TCHAR* filename)
   user_excel->app->PutDisplayAlerts(LOCALE_USER_DEFAULT, VARIANT_FALSE);
 
   user_excel->sheet->SaveAs(filename);
+  user_excel->sheet->Release();
   user_excel->app->PutDisplayAlerts(LOCALE_USER_DEFAULT, VARIANT_TRUE);
 
   return TRUE;
@@ -194,7 +195,6 @@ extern "C" void KTAPI KTCloseTemplateExcelFile(int handle)
 
   if (user_excel) {
     user_excel->book->Close(VARIANT_FALSE);
-
     user_excel->app->Quit();
 
     delete user_excel;
