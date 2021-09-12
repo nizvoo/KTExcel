@@ -22,3 +22,4 @@ EXPORTS
   KTSetSheetIndex                  @7
   KTGetSheetIndex                  @8
   KTSetCellFloatValue              @9
+  KTPasteCellUserString            @10
