@@ -26,6 +26,8 @@ typedef void (KTAPI* TKTCloseTemplateExcelFile)(int handle);
 typedef BOOL(KTAPI* TKTExcelStatus)();
 typedef void (KTAPI* TKTSetSheetIndex)(int handle, int sheet);
 typedef int (KTAPI*  TKTGetSheetIndex)(int handle);
+typedef BOOL (KTAPI* TKTPasteCellUserStringProc)(int handle, const char* text);
+
 
 static TKTLoadTemplateExcelFile KTLoadTemplateExcelFileProc = NULL;
 static TKTSetCellValue KTSetCellValueProc = NULL;
@@ -36,6 +38,8 @@ static TKTCloseTemplateExcelFile KTCloseTemplateExcelFileProc = NULL;
 static TKTExcelStatus KTExcelStatusProc = NULL;
 static TKTSetSheetIndex KTSetSheetIndexProc = NULL;
 static TKTGetSheetIndex KTGetSheetIndexProc = NULL;
+static TKTPasteCellUserStringProc KTPasteCellUserStringProc = NULL;
+
 
 BOOL KTAPI KTInitExcel(const TCHAR* path)
 {
@@ -57,9 +61,26 @@ BOOL KTAPI KTInitExcel(const TCHAR* path)
   KTExcelStatusProc = (TKTExcelStatus)GetProcAddress(inst, "KTExcelStatus");
   KTGetSheetIndexProc = (TKTGetSheetIndex)GetProcAddress(inst, "KTGetSheetIndex");
   KTSetSheetIndexProc = (TKTSetSheetIndex)GetProcAddress(inst, "KTSetSheetIndex");
+  KTPasteCellUserStringProc = (TKTPasteCellUserStringProc)GetProcAddress(inst, "KTPasteCellUserString");
 
-  if (!KTSetCellValueFloatProc) printf("Binding KTSetCellValueFloatProc function not OK.\n");
-  if (!KTExcelStatusProc) printf("Load Excel Status Entry Point fail.\n");
+  if (!KTPasteCellUserStringProc) {
+    printf("Binding KTPasteCellUserStringProc function not OK.\n");
+    FreeLibrary(inst);
+    inst = NULL;
+    return FALSE;
+  }
+
+  if (!KTSetCellValueFloatProc) {
+    printf("Binding KTSetCellValueFloatProc function not OK.\n");
+    FreeLibrary(inst);
+    inst = NULL;
+    return FALSE;
+  }
+  if (!KTExcelStatusProc) {
+    FreeLibrary(inst);
+    inst = NULL;
+    printf("Load Excel Status Entry Point fail.\n");
+  }
   return TRUE;
 }
 
@@ -84,14 +105,14 @@ BOOL KTAPI KTExcelStatus()
 
 int KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
 {
-  if (!KTLoadTemplateExcelFileProc) return FALSE;
+  //if (!KTLoadTemplateExcelFileProc) return FALSE;
 
   return KTLoadTemplateExcelFileProc(filename);
 }
 
 void KTAPI KTSetCellValue(int handle, int row, int col, const char* type, const TCHAR* data)
 {
-  if (!KTSetCellValueProc) return;
+  //if (!KTSetCellValueProc) return;
 
   KTSetCellValueProc(handle, row, col, type, data);
 }
@@ -112,21 +133,21 @@ BOOL KTAPI KTSaveExcelFile(int handle, const TCHAR* filename)
 
 void KTAPI KTCloseTemplateExcelFile(int handle)
 {
-  if (!KTCloseTemplateExcelFileProc) return;
+  //if (!KTCloseTemplateExcelFileProc) return;
 
   KTCloseTemplateExcelFileProc(handle);
 }
 
 BOOL KTAPI KTGetCellValue(int handle, int row, int col, const char* type, TCHAR* data, int dlc)
 {
-  if (!KTGetCellValueProc) return FALSE;
+  //if (!KTGetCellValueProc) return FALSE;
 
   return KTGetCellValueProc(handle, row, col, type, data, dlc);
 }
 
 int KTAPI KTGetSheetIndex(int handle)
 {
-  if (!KTGetSheetIndexProc) return 0;
+  //if (!KTGetSheetIndexProc) return 0;
 
   return KTGetSheetIndexProc(handle);
 }
@@ -135,4 +156,10 @@ void KTAPI KTSetSheetIndex(int handle, int sheet)
 {
   if (KTSetSheetIndexProc)
     KTSetSheetIndexProc(handle, sheet);
+}
+
+BOOL KTAPI KTPasteCellUserString(int handle, const char* text)
+{
+  if (!KTPasteCellUserStringProc) return FALSE;
+  return KTPasteCellUserStringProc(handle, text);
 }
