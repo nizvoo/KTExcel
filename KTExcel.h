@@ -32,6 +32,7 @@ BOOL KTAPI KTGetCellValue(int handle, int row, int col, const char* type, TCHAR*
 BOOL KTAPI KTSaveExcelFile(int handle, const TCHAR* filename);
 void KTAPI KTCloseTemplateExcelFile(int handle);
 BOOL KTAPI KTExcelStatus();
+BOOL KTAPI KTPasteCellUserString(int handle, const char* text);
 
 
 #ifdef __cplusplus
