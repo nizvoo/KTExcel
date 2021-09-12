@@ -252,7 +252,6 @@ extern "C" BOOL LoadExcelFile(const TCHAR* filename)
   pApplication->PutDisplayAlerts(LOCALE_USER_DEFAULT, VARIANT_TRUE);
 
   pBook->Close(VARIANT_FALSE);
-  user_excel->sheet->Release();
 
   pApplication->Quit();
 
@@ -285,7 +284,7 @@ extern "C" BOOL KTAPI KTPasteCellUserString(int handle, const char* text)
   user_excel_st* user_excel = user_excel_list[handle];
   CClipboardXX clip_board;
 
-  if (user_excel->sheet->Cells) user_excel->sheet->Cells(3, 1)->Select();
+  if (user_excel->sheet->Cells) user_excel->sheet->Cells[3][1].Select();
 
   if (user_excel->sheet) {
     clip_board << text;
