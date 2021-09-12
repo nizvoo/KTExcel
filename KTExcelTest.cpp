@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   TCHAR filename[MAX_PATH + 1] = {0};
   TCHAR path[MAX_PATH + 1] = {0};
   DWORD start_tm;
-  
+
   start_tm = GetTickCount();
 
   if (!KTGetUserAppPath(path, MAX_PATH)) {
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 
   KTInitExcel(path);
 
-  HRESULT hRes = ::CoInitialize(NULL);
+  HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
   assert(SUCCEEDED(hRes));
 
@@ -86,11 +86,42 @@ int main(int argc, char* argv[])
 
     KTSetSheetIndex(handle, 1);
 
-    for (int i = 0; i < 100 * 1000; ++i) {
-      for (int j = 0; j < 10; ++j) {
-        KTSetCellValue(handle, i + 1, j + 1, "int", _T("11"));
+    DWORD start_batch_tm = GetTickCount();
+    DWORD slice_tm = GetTickCount();
+    char str[MAX_PATH + 1] = {0};
+    int cols = 20;
+    int total = 1000 * 1000;
+    int sheet_text_size = total * 10 * cols;
+    char* sheet_text = new char[sheet_text_size];
+    memset(sheet_text, 0x00, sizeof(char) * sheet_text_size);
+    int str_len = 0;
+    for (int i = 0; i < total; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        _snprintf(str, MAX_PATH, "%0.2f", i * 0.1f + j * 0.01f);
+        strncpy(sheet_text + str_len, str, strlen(str));
+        str_len += strlen(str);
+        if (j < total - 1) {
+          strncpy(sheet_text + str_len, "\t", strlen("\t"));
+          str_len += strlen("\t");
+        }
+      }
+      strncpy(sheet_text + str_len, "\n", strlen("\n"));
+      str_len += strlen("\n");
+
+      if (i % 1000 == 0) {
+        DWORD use_tm = GetTickCount() - slice_tm;
+        printf("%d\t%0.2f s\t%0.2f s\t%0.2f%%\n", i, use_tm / 1000.f, (GetTickCount() - start_batch_tm) * 0.001f, 100 * (1 + i) / (float)total);
+        slice_tm = GetTickCount();
       }
     }
+    printf("%s\n", sheet_text);
+    KTPasteCellUserString(handle, sheet_text);
+    delete [] sheet_text;
+    sheet_text = NULL;
+
+    printf("Preparing other cell\n");
+
+    DWORD use_batch_tm = GetTickCount() - start_batch_tm;
     KTSetSheetIndex(handle, 0);
 
     _sntprintf(text, MAX_PATH, _T("%s"), _T("OverSizeX"));
@@ -121,13 +152,14 @@ int main(int argc, char* argv[])
     KTSaveExcelFile(handle, filename);
 
     KTCloseTemplateExcelFile(handle);
+    printf("Use time:%0.3f S, use batch time:0.3f S\n", (GetTickCount() - start_tm) / 1000.0, use_batch_tm * 0.001);
+
   } else {
     fprintf(stdout, "Invoking the EXCEL COM object fail.\n");
   }
 
   KTUnInitExcel();
 
-  printf("Use time:%0.3f S\n", (GetTickCount() - start_tm) / 1000.0);
   ::CoUninitialize();
   return 0;
 }
