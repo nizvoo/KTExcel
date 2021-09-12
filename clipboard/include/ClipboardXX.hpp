@@ -120,16 +120,19 @@ class CClipboardLinux: public IClipboardOS{
 
 class CClipboardXX{
     private:
-        IClipboardOS* m_pClipboard = new 
-        
-        #ifdef WINDOWS
-            CClipboardWindows();
-        #elif LINUX
-            CClipboardLinux();
-        #endif
-
-
+        IClipboardOS* m_pClipboard;
     public:
+        CClipboardXX():m_pClipboard(NULL) {
+           m_pClipboard = new 
+        
+                  #ifdef WINDOWS
+                      CClipboardWindows();
+                  #elif LINUX
+                      CClipboardLinux();
+                  #endif
+
+
+        } 
         ~CClipboardXX(){
             delete m_pClipboard;
         }       
