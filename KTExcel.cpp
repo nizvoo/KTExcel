@@ -84,20 +84,20 @@ extern "C" int KTAPI KTLoadTemplateExcelFile(const TCHAR* filename)
 
   if (FAILED(user_excel->app.CreateInstance(_T("Excel.Application")))) {
     Errorf(_T("Failed to initialize Excel::_Application!"));
-    return FALSE;
+    return -1;
   }
 
   _variant_t	varOption((long)DISP_E_PARAMNOTFOUND, VT_ERROR);
 
   if (!user_excel->app || !user_excel->app->Workbooks) {
     Errorf(_T("Workbooks is empty\n"));
-    return FALSE;
+    return -1;
   }
 
   user_excel->book = user_excel->app->Workbooks->Open(filename);
   if (user_excel->book == NULL) {
     Errorf(_T("Failed to open Excel file!"));
-    return FALSE;
+    return -1;
   }
   user_excel->app->PutVisible(0, FALSE);
   
